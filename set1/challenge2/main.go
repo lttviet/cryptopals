@@ -21,7 +21,7 @@ func main() {
 
 func xor(arr1, arr2 []byte) []byte {
 	var result []byte
-	for i := 0; i < len(arr1); i++ {
+	for i, _ := range arr1 {
 		result = append(result, arr1[i]^arr2[i])
 	}
 
