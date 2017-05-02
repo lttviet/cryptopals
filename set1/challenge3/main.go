@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	ascii = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~!@#$%^&*()-_+={}[]\\|<,>.?/\"';:`"
 )
 
 func main() {
@@ -22,7 +22,7 @@ func main() {
 
 	arr := decodeHexStr(os.Args[1])
 
-	for _, char := range alphabet {
+	for _, char := range ascii {
 		charByteArr := []byte(string(char))
 		result := xor(arr, charByteArr)
 
