@@ -6,20 +6,15 @@ import (
 	"unicode"
 )
 
-const (
-	ascii = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~!@#$%^&*()-_+={}[]\\|<,>.?/\"';:`"
-)
-
 // Given a hex string, find the best ascii text based on scores
 func DecryptSingleByteXOR(s string) string {
 	arr := stringutil.DecodeHexStr(s)
 
 	var results []string
 	var scores []int
-	for _, char := range ascii {
-		// convert a rune to a byte
-		charByte := []byte(string(char))[0]
-		result := string(xor.SingleByteXOR(arr, charByte))
+	for i := 0; i < 256; i++ {
+		singleByte := byte(i)
+		result := string(xor.SingleByteXOR(arr, singleByte))
 
 		results = append(results, result)
 		scores = append(scores, scoring(result))
