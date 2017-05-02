@@ -25,3 +25,11 @@ func SingleByteXOR(arr []byte, b byte) []byte {
 	}
 	return result
 }
+
+func RepeatingKeyXOR(arr, key []byte) []byte {
+	var result []byte
+	for i, _ := range arr {
+		result = append(result, arr[i]^key[i%len(key)])
+	}
+	return result
+}
