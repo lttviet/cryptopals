@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/lttviet/cryptopals/decrypt"
+	"github.com/lttviet/cryptopals/stringutil"
 	"log"
 	"os"
 )
@@ -12,6 +13,7 @@ func main() {
 		log.Fatal("Requires a hex strings.")
 	}
 
-	result := decrypt.DecryptSingleByteXOR(os.Args[1])
+	arr := stringutil.DecodeHexStr(os.Args[1])
+	result := decrypt.DecryptSingleByteXOR(arr)
 	fmt.Printf("%+v\n", result)
 }
