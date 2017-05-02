@@ -13,5 +13,5 @@ func main() {
 	}
 
 	result := decrypt.DecryptSingleByteXOR(os.Args[1])
-	fmt.Println(result)
+	fmt.Printf("%+v\n", result)
 }
