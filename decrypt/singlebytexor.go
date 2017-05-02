@@ -1,10 +1,8 @@
-package main
+package decrypt
 
 import (
-	"encoding/hex"
-	"fmt"
-	"log"
-	"os"
+	"github.com/lttviet/cryptopals/stringutil"
+	"github.com/lttviet/cryptopals/xor"
 	"unicode"
 )
 
@@ -12,48 +10,27 @@ const (
 	ascii = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789~!@#$%^&*()-_+={}[]\\|<,>.?/\"';:`"
 )
 
-func main() {
-	if len(os.Args) < 2 {
-		log.Fatal("Requires a hex strings.")
-	}
+// Given a hex string, find the best ascii text based on scores
+func DecryptSingleByteXOR(s string) string {
+	arr := stringutil.DecodeHexStr(s)
 
 	var results []string
 	var scores []int
-
-	arr := decodeHexStr(os.Args[1])
-
 	for _, char := range ascii {
-		charByteArr := []byte(string(char))
-		result := xor(arr, charByteArr)
+		// convert a rune to a byte
+		charByte := []byte(string(char))[0]
+		result := string(xor.SingleByteXOR(arr, charByte))
 
 		results = append(results, result)
-		scores = append(scores, score(result))
+		scores = append(scores, scoring(result))
 	}
 
 	maxIndex, _ := max(scores)
-	fmt.Println(results[maxIndex])
+	return results[maxIndex]
 }
 
-func xor(arr1, arr2 []byte) string {
-	var result []byte
-	for i, _ := range arr1 {
-		// if len(arr2) < len(arr1), modulus to repeat arr2 byte
-		result = append(result, arr1[i]^arr2[i%len(arr2)])
-	}
-
-	return string(result)
-}
-
-func decodeHexStr(str string) []byte {
-	byteArr, err := hex.DecodeString(str)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return byteArr
-}
-
-func score(str string) int {
+// Scores an ascii string based on english letter frequency
+func scoring(str string) int {
 	letterFreq := map[string]int{
 		"a": 8, "b": 1, "c": 3, "d": 4, "e": 13,
 		"f": 2, "g": 2, "h": 6, "i": 7, "j": 1,
@@ -78,12 +55,11 @@ func score(str string) int {
 			score -= 20
 		}
 	}
-
 	return score
 }
 
+// Returns index and value of a max value in array
 func max(arr []int) (int, int) {
-	// return index and value of a max value in array
 	var maxIndex, max int
 	for i, val := range arr {
 		if val > max {
