@@ -1,8 +1,10 @@
 package decrypt
 
 import (
+	"crypto/aes"
 	"github.com/lttviet/cryptopals/stringutil"
 	"github.com/lttviet/cryptopals/xor"
+	"log"
 )
 
 const (
@@ -132,4 +134,23 @@ func transpose(blks []Block) []Block {
 		}
 	}
 	return result
+}
+
+func DecryptAES128ECB(data, key []byte) []byte {
+	if len(key) != 16 {
+		log.Fatal("Key must be 16 bytes")
+	}
+
+	cipher, err := aes.NewCipher(key)
+	if err != nil {
+		log.Fatal(err)
+	}
+	decrypted := make([]byte, len(data))
+	size := 16
+
+	for bs, be := 0, size; bs < len(data); bs, be = bs+size, be+size {
+		cipher.Decrypt(decrypted[bs:be], data[bs:be])
+	}
+
+	return decrypted
 }
