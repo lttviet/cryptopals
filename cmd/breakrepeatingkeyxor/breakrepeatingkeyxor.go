@@ -14,14 +14,16 @@ func main() {
 		log.Fatal("Need a filepath.")
 	}
 
-	b64Cipher, err := ioutil.ReadFile(os.Args[1])
+	b64, err := ioutil.ReadFile(os.Args[1])
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	hexCipher, err2 := base64.StdEncoding.DecodeString(string(b64Cipher))
+	data := make([]byte, len(b64))
+	end, err2 := base64.StdEncoding.Decode(data, b64)
 	if err2 != nil {
-		log.Fatal(err)
+		log.Fatal(err2)
 	}
-	fmt.Println(string(decrypt.DecryptRepeatingKeyXOR(hexCipher)))
+
+	fmt.Println(string(decrypt.DecryptRepeatingKeyXOR(data[:end])))
 }
