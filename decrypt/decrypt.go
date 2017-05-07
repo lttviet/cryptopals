@@ -154,3 +154,19 @@ func DecryptAES128ECB(data, key []byte) []byte {
 
 	return decrypted
 }
+
+// check if the raw byte is encrypted with ECB
+func DetectAES128ECB(raw []byte) bool {
+	seen := make(map[[16]byte]bool, len(raw)/16)
+	for i := 0; i < len(raw); i += 16 {
+		var key [16]byte
+		copy(key[:], raw[i:i+16])
+
+		if seen[key] {
+			return true
+		} else {
+			seen[key] = true
+		}
+	}
+	return false
+}
