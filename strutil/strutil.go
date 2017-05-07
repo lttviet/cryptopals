@@ -1,6 +1,24 @@
-package stringutil
+package strutil
 
-import "unicode"
+import (
+	"encoding/base64"
+	"encoding/hex"
+	"log"
+	"unicode"
+)
+
+func DecodeHexStr(str string) []byte {
+	byteArr, err := hex.DecodeString(str)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return byteArr
+}
+
+func HexToBase64(hexstr string) string {
+	byteArr := DecodeHexStr(hexstr)
+	return base64.StdEncoding.EncodeToString(byteArr)
+}
 
 // Scores an ascii string based on english letter frequency
 func Score(str string) int {

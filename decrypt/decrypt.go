@@ -2,7 +2,7 @@ package decrypt
 
 import (
 	"crypto/aes"
-	"github.com/lttviet/cryptopals/stringutil"
+	"github.com/lttviet/cryptopals/strutil"
 	"github.com/lttviet/cryptopals/xor"
 	"log"
 )
@@ -32,7 +32,7 @@ func DecryptSingleByteXOR(arr []byte) Text {
 	for i := 0; i < 256; i++ {
 		t.key = byte(i)
 		t.plaintext = string(xor.SingleByteXOR(arr, t.key))
-		t.score = stringutil.Score(t.plaintext)
+		t.score = strutil.Score(t.plaintext)
 
 		texts = append(texts, t)
 	}

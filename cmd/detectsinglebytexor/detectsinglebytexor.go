@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/lttviet/cryptopals/decrypt"
-	"github.com/lttviet/cryptopals/stringutil"
+	"github.com/lttviet/cryptopals/strutil"
 	"log"
 	"os"
 	"strconv"
@@ -28,7 +28,7 @@ func main() {
 
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
-		arr := stringutil.DecodeHexStr(scanner.Text())
+		arr := strutil.DecodeHexStr(scanner.Text())
 		t := decrypt.DecryptSingleByteXOR(arr)
 
 		if t.Score() >= minScore {

@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"github.com/lttviet/cryptopals/decrypt"
-	"github.com/lttviet/cryptopals/stringutil"
+	"github.com/lttviet/cryptopals/strutil"
 	"log"
 	"os"
 )
@@ -23,7 +23,7 @@ func main() {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		hexStr := scanner.Text()
-		raw := stringutil.DecodeHexStr(hexStr)
+		raw := strutil.DecodeHexStr(hexStr)
 		if decrypt.DetectAES128ECB(raw) {
 			fmt.Println(hexStr)
 		}
