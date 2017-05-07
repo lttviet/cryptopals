@@ -21,12 +21,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	data := make([]byte, len(b64))
-	end, err2 := base64.StdEncoding.Decode(data, b64)
+	raw := make([]byte, len(b64))
+	n, err2 := base64.StdEncoding.Decode(raw, b64)
 	if err2 != nil {
 		log.Fatal(err2)
 	}
 
-	decrypted := decrypt.DecryptAES128ECB(data[:end], key)
+	decrypted := decrypt.DecryptAES128ECB(raw[:n], key)
 	fmt.Println(string(decrypted))
 }
