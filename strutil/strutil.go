@@ -48,3 +48,16 @@ func Score(str string) int {
 	}
 	return score
 }
+
+// appending to a block a number of bytes of padding
+func PKCS7Padding(block []byte, blocksize int) []byte {
+	if len(block) >= blocksize {
+		log.Fatal("Size of block is greater than given blocksize.")
+	}
+
+	pad := blocksize - len(block)
+	for i := 0; i < pad; i++ {
+		block = append(block, byte(pad))
+	}
+	return block
+}
