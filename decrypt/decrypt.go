@@ -10,6 +10,7 @@ import (
 const (
 	MINKEYSIZE = 2
 	MAXKEYSIZE = 40
+	AES128SIZE = 16
 )
 
 type Block []byte
@@ -169,4 +170,53 @@ func DetectAES128ECB(raw []byte) bool {
 		}
 	}
 	return false
+}
+
+func EncryptAES128CBC(plaintext, key, iv []byte) []byte {
+	cipher, err := aes.NewCipher(key)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	ciphertextLen := len(plaintext)%len(key) + len(plaintext)
+	strutil.PKCS7Padding(plaintext, ciphertextLen) // pad plaintext
+	ciphertext := make([]byte, ciphertextLen)
+
+	for i := 0; i < ciphertextLen; i += 16 {
+		var src []byte
+
+		if i == 0 {
+			// first block of plaintext
+			src = xor.FixedXOR(plaintext[i:i+16], iv)
+		} else {
+			src = xor.FixedXOR(plaintext[i:i+16], ciphertext[i-16:i])
+		}
+		cipher.Encrypt(ciphertext[i:i+16], src)
+	}
+
+	return ciphertext
+}
+
+func DecryptAES128CBC(ciphertext, key, iv []byte) []byte {
+	cipher, err := aes.NewCipher(key)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	plaintext := make([]byte, len(ciphertext))
+
+	for i := 0; i < len(ciphertext); i += 16 {
+		cipher.Decrypt(plaintext[i:i+16], ciphertext[i:i+16])
+
+		var decrypted []byte
+
+		if i == 0 {
+			decrypted = xor.FixedXOR(plaintext[i:i+16], iv)
+		} else {
+			decrypted = xor.FixedXOR(plaintext[i:i+16], ciphertext[i-16:i])
+		}
+		copy(plaintext[i:i+16], decrypted)
+	}
+
+	return plaintext
 }

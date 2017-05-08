@@ -51,7 +51,7 @@ func Score(str string) int {
 
 // appending to a block a number of bytes of padding
 func PKCS7Padding(block []byte, blocksize int) []byte {
-	if len(block) >= blocksize {
+	if len(block) > blocksize {
 		log.Fatal("Size of block is greater than given blocksize.")
 	}
 
