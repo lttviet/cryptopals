@@ -5,6 +5,8 @@ import (
 	"github.com/lttviet/cryptopals/strutil"
 	"github.com/lttviet/cryptopals/xor"
 	"log"
+	"math/rand"
+	"time"
 )
 
 const (
@@ -95,7 +97,6 @@ func score(cipher Block, keySize int) float64 {
 func generateCombination(blks []Block) chan []Block {
 	ch := make(chan []Block)
 
-	//defer close(ch)
 	go func() {
 		for i := 0; i < len(blks); i++ {
 			for j := i + 1; j < len(blks); j++ {
@@ -137,6 +138,27 @@ func transpose(blks []Block) []Block {
 	return result
 }
 
+func EncryptAES128ECB(plaintext, key []byte) []byte {
+	cipher, err := aes.NewCipher(key)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// ciphertext length is multiple of key size
+	ciphertextLen := len(key)
+	for ; len(plaintext) > ciphertextLen; ciphertextLen += len(key) {
+	}
+
+	plaintext = strutil.PKCS7Padding(plaintext, ciphertextLen) // pad plaintext
+	ciphertext := make([]byte, ciphertextLen)
+
+	for bs, be := 0, AES128SIZE; bs < len(plaintext); bs, be = bs+AES128SIZE, be+AES128SIZE {
+		cipher.Encrypt(ciphertext[bs:be], plaintext[bs:be])
+	}
+
+	return ciphertext
+}
+
 func DecryptAES128ECB(data, key []byte) []byte {
 	if len(key) != 16 {
 		log.Fatal("Key must be 16 bytes")
@@ -147,9 +169,8 @@ func DecryptAES128ECB(data, key []byte) []byte {
 		log.Fatal(err)
 	}
 	decrypted := make([]byte, len(data))
-	size := 16
 
-	for bs, be := 0, size; bs < len(data); bs, be = bs+size, be+size {
+	for bs, be := 0, AES128SIZE; bs < len(data); bs, be = bs+AES128SIZE, be+AES128SIZE {
 		cipher.Decrypt(decrypted[bs:be], data[bs:be])
 	}
 
@@ -223,4 +244,58 @@ func DecryptAES128CBC(ciphertext, key, iv []byte) []byte {
 	}
 
 	return plaintext
+}
+
+// Generates random byte array of given len
+func randomBytes(len int) []byte {
+	arr := make([]byte, len)
+	_, err := rand.Read(arr)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return arr
+}
+
+// Generates random aes key, 16 random bytes
+func randomAESKey() []byte {
+	return randomBytes(AES128SIZE)
+}
+
+func encrypt(plaintext []byte) []byte {
+	rand.Seed(time.Now().UnixNano())
+
+	before := rand.Intn(6) + 5
+	plaintext = append(randomBytes(before), plaintext...)
+
+	after := rand.Intn(6) + 5
+	plaintext = append(plaintext, randomBytes(after)...)
+
+	var cipher []byte
+	key := randomAESKey()
+	choice := rand.Intn(2)
+
+	if choice == 0 {
+		log.Println("Encrypted under cbc")
+		iv := randomBytes(AES128SIZE)
+		cipher = EncryptAES128CBC(plaintext, key, iv)
+	} else {
+		log.Println("Encrypted under ecb")
+		cipher = EncryptAES128ECB(plaintext, key)
+	}
+
+	return cipher
+}
+
+// Returns 1 if ecb, 0 if cbc
+func Oracle(plaintext []byte) int {
+	cipher := encrypt(plaintext)
+
+	if DetectAES128ECB(cipher) {
+		log.Println("Oracle thinks ecb")
+		return 1
+	} else {
+		log.Println("Oracle thinks cbc")
+		return 0
+	}
 }
