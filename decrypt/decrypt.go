@@ -178,8 +178,12 @@ func EncryptAES128CBC(plaintext, key, iv []byte) []byte {
 		log.Fatal(err)
 	}
 
-	ciphertextLen := len(plaintext)%len(key) + len(plaintext)
-	strutil.PKCS7Padding(plaintext, ciphertextLen) // pad plaintext
+	// ciphertext length is multiple of key size
+	ciphertextLen := len(key)
+	for ; len(plaintext) > ciphertextLen; ciphertextLen += len(key) {
+	}
+
+	plaintext = strutil.PKCS7Padding(plaintext, ciphertextLen) // pad plaintext
 	ciphertext := make([]byte, ciphertextLen)
 
 	for i := 0; i < ciphertextLen; i += 16 {
