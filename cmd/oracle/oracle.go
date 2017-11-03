@@ -12,10 +12,15 @@ func main() {
 		log.Fatal("Need a filepath.")
 	}
 
-	plaintext, err := ioutil.ReadFile(os.Args[1])
+	cipher, err := ioutil.ReadFile(os.Args[1])
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	decrypt.Oracle(plaintext)
+	guess := decrypt.Oracle(cipher)
+	if guess == 0 {
+		log.Println("Oracle thinks ecb")
+	} else {
+		log.Println("Oracle thinks cbc")
+	}
 }

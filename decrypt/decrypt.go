@@ -262,7 +262,7 @@ func randomAESKey() []byte {
 	return randomBytes(AES128SIZE)
 }
 
-func encrypt(plaintext []byte) []byte {
+func OracleEncrypt(plaintext []byte) ([]byte, int) {
 	rand.Seed(time.Now().UnixNano())
 
 	before := rand.Intn(6) + 5
@@ -276,26 +276,20 @@ func encrypt(plaintext []byte) []byte {
 	choice := rand.Intn(2)
 
 	if choice == 0 {
-		log.Println("Encrypted under cbc")
 		iv := randomBytes(AES128SIZE)
 		cipher = EncryptAES128CBC(plaintext, key, iv)
 	} else {
-		log.Println("Encrypted under ecb")
 		cipher = EncryptAES128ECB(plaintext, key)
 	}
 
-	return cipher
+	return cipher, choice
 }
 
 // Returns 1 if ecb, 0 if cbc
-func Oracle(plaintext []byte) int {
-	cipher := encrypt(plaintext)
-
+func Oracle(cipher []byte) int {
 	if DetectAES128ECB(cipher) {
-		log.Println("Oracle thinks ecb")
 		return 1
 	} else {
-		log.Println("Oracle thinks cbc")
 		return 0
 	}
 }
