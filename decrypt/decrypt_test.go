@@ -21,3 +21,8 @@ func TestOracle(t *testing.T) {
 		}
 	}
 }
+
+func TestOracleDecryptECB(t *testing.T) {
+	plaintext := OracleDecryptECB()
+	log.Println(string(plaintext[:]))
+}

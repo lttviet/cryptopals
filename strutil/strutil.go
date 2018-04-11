@@ -20,6 +20,14 @@ func HexToBase64(hexstr string) string {
 	return base64.StdEncoding.EncodeToString(byteArr)
 }
 
+func DecodeBase64Str(str string) []byte {
+	byteArr, err := base64.StdEncoding.DecodeString(str)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return byteArr
+}
+
 // Scores an ascii string based on english letter frequency
 func Score(str string) int {
 	letterFreq := map[string]int{

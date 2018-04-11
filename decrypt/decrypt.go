@@ -1,6 +1,7 @@
 package decrypt
 
 import (
+	"bytes"
 	"crypto/aes"
 	"github.com/lttviet/cryptopals/strutil"
 	"github.com/lttviet/cryptopals/xor"
@@ -10,9 +11,13 @@ import (
 )
 
 const (
-	MINKEYSIZE = 2
-	MAXKEYSIZE = 40
-	AES128SIZE = 16
+	MINKEYSIZE  = 2
+	MAXKEYSIZE  = 40
+	AES128SIZE  = 16
+	UNKNOWNTEXT = `Um9sbGluJyBpbiBteSA1LjAKV2l0aCBteSByYWctdG9wIGRvd24gc28gbXkg
+aGFpciBjYW4gYmxvdwpUaGUgZ2lybGllcyBvbiBzdGFuZGJ5IHdhdmluZyBq
+dXN0IHRvIHNheSBoaQpEaWQgeW91IHN0b3A/IE5vLCBJIGp1c3QgZHJvdmUg
+YnkK`
 )
 
 type Block []byte
@@ -292,4 +297,63 @@ func Oracle(cipher []byte) int {
 	} else {
 		return 0
 	}
+}
+
+// AES128ECB(mystring || unkowntext, samekey)
+func OracleEncryptECB(plaintext []byte) []byte {
+	rand.Seed(123456) // same key everytime
+	key := randomAESKey()
+
+	plaintext = append(plaintext, strutil.DecodeBase64Str(UNKNOWNTEXT)...)
+
+	return EncryptAES128ECB(plaintext, key)
+}
+
+// Find unknowntext
+func OracleDecryptECB() []byte {
+	// discover block size of cipher
+	var myString []byte
+	var blockSize int
+	for i := 0; i < 32; i++ {
+		j := len(OracleEncryptECB(myString))
+		myString = append(myString, []byte("A")...)
+		k := len(OracleEncryptECB(myString))
+
+		blockSize = k - j
+		if blockSize > 0 {
+			break
+		}
+	}
+
+	// check if ECB
+	myString2 := make([]byte, blockSize*2)
+	if !DetectAES128ECB(OracleEncryptECB(myString2)) {
+		log.Fatal("not ECB")
+	}
+
+	// number of blocks in unknowntext
+	blocks := len(OracleEncryptECB([]byte("A"))) / blockSize
+
+	var plaintext []byte
+	for b := 0; b < blocks; b++ {
+		for i := 0; i < blockSize; i++ {
+			var myString3 []byte
+			for j := 0; j < blockSize-1-i; j++ {
+				myString3 = append(myString3, []byte("A")...)
+			}
+			cipher := OracleEncryptECB(myString3)
+
+			// match
+			for j := 0; j <= 127; j++ {
+				myString4 := append(myString3, plaintext...)
+				myString4 = append(myString4, byte(j))
+				if bytes.Equal(cipher[b*blockSize:(b+1)*blockSize], OracleEncryptECB(myString4)[b*blockSize:(b+1)*blockSize]) {
+					plaintext = append(plaintext, byte(j))
+					break
+				}
+			}
+		}
+	}
+
+	return plaintext
 }
