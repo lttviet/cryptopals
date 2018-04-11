@@ -17,7 +17,7 @@ func TestOracle(t *testing.T) {
 		guess := Oracle(cipher)
 		log.Println(choice, guess)
 		if choice != guess {
-			t.Errorf("Choice: %s, Guess: %s", choice, guess)
+			t.Errorf("Choice: %d, Guess: %d", choice, guess)
 		}
 	}
 }
